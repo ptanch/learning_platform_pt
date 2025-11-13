@@ -32,6 +32,8 @@ class Lesson(models.Model):
         on_delete=models.SET_NULL,
         verbose_name="Курс",
         help_text="Выберите курс",
+        blank=True,
+        null=True,
     )
     name = models.CharField(
         max_length=100,
