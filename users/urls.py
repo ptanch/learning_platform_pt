@@ -5,5 +5,6 @@ from users.apps import UsersConfig
 app_name = UsersConfig.name
 
 urlpatterns = [
-    path('user/', views.UserView.as_view(), name='user')
+    path('create/', views.UserCreateApiView.as_view(), name='create'),
+    path('profile/', views.UserProfileApiView.as_view(), name='profile'),
 ]
