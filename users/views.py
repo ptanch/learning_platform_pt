@@ -4,6 +4,7 @@ from rest_framework.generics import (
     UpdateAPIView,
     RetrieveUpdateAPIView,
     ListAPIView,
+    DestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
@@ -33,6 +34,12 @@ class UserProfileApiView(RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserDeleteApiView(DestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class PaymentsListApiView(ListAPIView):
