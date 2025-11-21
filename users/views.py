@@ -5,7 +5,7 @@ from rest_framework.generics import (
     RetrieveUpdateAPIView,
     ListAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from users.models import User, Payments
 from users.serializers import UserSerializer, PaymentsSerializer
@@ -14,6 +14,7 @@ from users.serializers import UserSerializer, PaymentsSerializer
 class UserCreateApiView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
 
     def perform_create(self, serializer):
         user = serializer.save(is_active=True)
