@@ -1,4 +1,6 @@
 from django.urls import path
+from rest_framework.permissions import AllowAny
+
 from users import views
 from users.apps import UsersConfig
 from users.views import PaymentsListApiView, UserCreateApiView
@@ -14,6 +16,6 @@ urlpatterns = [
     path("profile/", views.UserProfileApiView.as_view(), name="profile"),
     path("payments/", PaymentsListApiView.as_view(), name="payments_list"),
     path("register/", UserCreateApiView.as_view(), name="register"),
-    path("login/", TokenObtainPairView.as_view(), name="login"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("login/", TokenObtainPairView.as_view(permission_classes=(AllowAny,)), name="login"),
+    path("token/refresh/", TokenRefreshView.as_view(permission_classes=(AllowAny,)), name="token_refresh"),
 ]
