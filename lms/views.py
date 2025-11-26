@@ -1,14 +1,17 @@
+from pyexpat.errors import messages
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
 from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
-    DestroyAPIView,
+    DestroyAPIView, get_object_or_404,
 )
 
-from lms.models import Course, Lesson
+from lms.models import Course, Lesson, Subscription
 from lms.paginations import CustomPagination
 from lms.serializers import CourseSerializer, LessonSerializer, CourseDetailSerializer
 from users.permissions import IsModer, IsOwner
@@ -71,3 +74,28 @@ class LessonDestroyApiView(DestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = (IsAuthenticated, IsOwner | ~IsModer)
+
+
+class SubscriptionApiView(APIView):
+    """Управление подпиской пользователя на курс"""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        course_id = request.data.get("course")
+
+        if not course_id:
+            return Response({"error": "Не передан course_id"}, status=400)
+
+        course_item = get_object_or_404(Course,  id=course_id)
+
+        subs_item = Subscription.objects.filter(user=user, course=course_item)
+
+        if subs_item.exists():
+            subs_item.delete()
+            message = "Подписка удалена"
+        else:
+            Subscription.objects.create(user=user, course=course_item)
+            message = "Подписка добавлена"
+
+        return Response({"message": message})
