@@ -31,6 +31,18 @@ class Course(models.Model):
         help_text="Укажите владельца курса",
     )
 
+    stripe_product_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    stripe_price_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
     class Meta:
         verbose_name = "Курс"
         verbose_name_plural = "Курсы"
