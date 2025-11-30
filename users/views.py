@@ -1,3 +1,4 @@
+from requests import session
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
     CreateAPIView,
@@ -10,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from users.models import User, Payments
 from users.serializers import UserSerializer, PaymentsSerializer
+from users.services import create_stripe_price, create_stripe_session, create_stripe_product
 
 
 class UserCreateApiView(CreateAPIView):
@@ -68,3 +70,25 @@ class PaymentsListApiView(ListAPIView):
             queryset = queryset.filter(payment_method=payment_method)
 
         return queryset
+
+
+class PaymentsCreateApiView(CreateAPIView):
+    queryset = Payments.objects.all()
+    serializer_class = PaymentsSerializer
+
+    def perform_create(self, serializer):
+        payment = serializer.save(user=self.request.user)
+
+        course = payment.paid_course
+        amount = payment.amount
+
+        product_id = create_stripe_product(course)
+
+        price_id = create_stripe_price(course, amount)
+
+        session_id, session_url = create_stripe_session(price_id)
+
+        payment.stripe_session_id = session_id
+        payment.payment_url = session_url
+        payment.payment_method = "stripe"
+        payment.save()
