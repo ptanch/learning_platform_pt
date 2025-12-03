@@ -1,5 +1,6 @@
 import os
-
+import eventlet
+eventlet.monkey_patch()
 from celery import Celery
 
 # Set the default Django settings module for the 'celery' program.
