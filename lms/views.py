@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -7,7 +10,8 @@ from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
-    DestroyAPIView, get_object_or_404,
+    DestroyAPIView,
+    get_object_or_404,
 )
 
 from lms.models import Course, Lesson, Subscription
@@ -34,7 +38,14 @@ class CourseViewSet(ModelViewSet):
     def perform_update(self, serializer):
         updated_course = serializer.save()
 
-        send_course_update_email.delay(updated_course.id)
+        now = timezone.now()
+        last_sent = updated_course.last_notification_sent
+
+        # Если не было уведомления или прошло больше 4 часов
+        if not last_sent or (now - last_sent) >= timedelta(hours=4):
+            send_course_update_email.delay(updated_course.id)
+            updated_course.last_notification_sent = now
+            updated_course.save(update_fields=["last_notification_sent"])
 
         return updated_course
 
@@ -85,6 +96,7 @@ class LessonDestroyApiView(DestroyAPIView):
 
 class SubscriptionApiView(APIView):
     """Управление подпиской пользователя на курс"""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -94,7 +106,7 @@ class SubscriptionApiView(APIView):
         if not course_id:
             return Response({"error": "Не передан course_id"}, status=400)
 
-        course_item = get_object_or_404(Course,  id=course_id)
+        course_item = get_object_or_404(Course, id=course_id)
 
         subs_item = Subscription.objects.filter(user=user, course=course_item)
 
