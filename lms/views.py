@@ -1,4 +1,3 @@
-from pyexpat.errors import messages
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -14,6 +13,7 @@ from rest_framework.generics import (
 from lms.models import Course, Lesson, Subscription
 from lms.paginations import CustomPagination
 from lms.serializers import CourseSerializer, LessonSerializer, CourseDetailSerializer
+from lms.tasks import send_course_update_email
 from users.permissions import IsModer, IsOwner
 
 
@@ -30,6 +30,13 @@ class CourseViewSet(ModelViewSet):
         course = serializer.save()
         course.owner = self.request.user
         course.save()
+
+    def perform_update(self, serializer):
+        updated_course = serializer.save()
+
+        send_course_update_email.delay(updated_course.id)
+
+        return updated_course
 
     def get_permissions(self):
         if self.action == "create":
