@@ -6,7 +6,9 @@ from lms.models import Course, Lesson
 
 
 class UserManager(BaseUserManager):
+    """Менеджер для модели пользователя с email‑аутентификацией"""
     def create_user(self, email, password=None, **extra_fields):
+        """Создаёт и сохраняет обычного пользователя"""
         if not email:
             raise ValueError("Email must be set")
         email = self.normalize_email(email)
@@ -16,6 +18,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
+        """Создаёт суперпользователя с предустановленными флагами"""
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -23,6 +26,10 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
+    """
+    Класс для представления пользователя с кастомной настройкой.
+    Заменяет стандартное поле username на email как основной идентификатор
+    """
     username = None
 
     email = models.EmailField(
@@ -61,6 +68,7 @@ class User(AbstractUser):
 
 
 class Payments(models.Model):
+    """Класс для представления оплат"""
     PAYMENT_METHOD_CHOICES = (
         ("cash", "Наличные"),
         ("transfer", "Перевод на счет"),
