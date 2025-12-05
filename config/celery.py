@@ -1,6 +1,5 @@
 import os
-import eventlet
-eventlet.monkey_patch()
+
 from celery import Celery
 from celery.schedules import crontab
 
