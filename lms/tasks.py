@@ -10,10 +10,10 @@ def send_course_update_email(course_id):
     """Отправляет письма подписчикам при обновлении курса."""
     course = Course.objects.get(id=course_id)
 
-    subscribers = Subscription.objects.filter(course=course).select_related("user")
-    emails = [sub.user.email for sub in subscribers if sub.user.email]
+    subscribers = Subscription.objects.filter(course=course)
+    recipients = list(subscribers.values_list('user__email', flat=False))
 
-    if not emails:
+    if not recipients:
         return "Нет подписчиков с email"
 
     subject = f"Обновление курса: {course.name}"
@@ -26,8 +26,8 @@ def send_course_update_email(course_id):
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
-        emails,
+        recipients,
         fail_silently=False,
     )
 
-    return f"Отправлено писем: {len(emails)}"
+    return f"Отправлено писем: {len(recipients)}"
