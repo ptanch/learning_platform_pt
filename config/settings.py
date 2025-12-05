@@ -136,13 +136,14 @@ SPECTACULAR_SETTINGS = {
 
 STRIPE_API_KEY = os.getenv('STRIPE_API_KEY')
 
-# URL-адрес брокера сообщений
-CELERY_BROKER_URL = 'redis://localhost:6379'
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
+CELERY_DB = 1
 
-# URL-адрес брокера результатов, также Redis
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/{CELERY_DB}'
 
-# Часовой пояс для работы Celery
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/{CELERY_DB}'
+
 CELERY_TIMEZONE = 'Europe/Moscow'
 
 # Флаг отслеживания выполнения задач
@@ -151,14 +152,12 @@ CELERY_TASK_TRACK_STARTED = True
 # Максимальное время на выполнение задачи
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
-CACHE_ENABLED = True
-if CACHE_ENABLED:
-    CACHES = {
-        'default': {
-            'BACKEND': os.getenv('BACKEND'),
-            'LOCATION': os.getenv('LOCATION'),
-        }
-    }
+CACHES = {
+   'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/0',
+   }
+}
 
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 465))
