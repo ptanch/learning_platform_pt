@@ -6,6 +6,7 @@ from lms.validators import validate_video_url
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    """Сериализатор для представления курса"""
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -13,6 +14,7 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_is_subscribed(self, obj):
+        """Получение подписанного пользователя"""
         request = self.context.get("request")
 
         if not request or request.user.is_anonymous:
@@ -27,6 +29,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    """Сериализатор для представления урока"""
     video_link = serializers.URLField(validators=[validate_video_url])
     course = CourseSerializer(read_only=True)
 
@@ -36,10 +39,12 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
+    """Сериализатор для детального представления курса"""
     lessons_count = SerializerMethodField()
     lessons = LessonSerializer(many=True, read_only=True)
 
     def get_lessons_count(self, obj):
+        """Вычисляет количество уроков для данного курса"""
         return obj.lessons.count()
 
     class Meta:
