@@ -290,9 +290,135 @@ python manage.py migrate
 ```
 python manage.py runserver
 ```
-
 Теперь API доступно по адресу:
 http://127.0.0.1:8000/
+
+## 🐳 Запуск проекта через Docker
+
+Проект полностью контейнеризирован и запускается с помощью **Docker Compose**.
+В составе проекта используются следующие сервисы:
+
+- **web** — Django-приложение
+- **db** — PostgreSQL
+- **redis** — брокер сообщений
+- **celery** — Celery worker для фоновых задач
+
+### 📦 Требования
+
+Перед запуском убедитесь, что у вас установлены:
+
+- Docker
+- Docker Compose
+
+Проверить:
+```
+docker --version
+docker compose version
+```
+
+### 🚀 Запуск проекта
+
+1. Клонировать репозиторий:
+```
+git clone <repo_url>
+cd learning_platform_pt
+```
+
+2. Создать файл `.env` (если его нет) на основе `.env.sample` и указать значения переменных окружения, например:
+```
+POSTGRES_DB=postgres_database
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+
+DB_HOST=db
+DB_PORT=5432
+
+REDIS_HOST=redis
+REDIS_PORT=6379
+```
+
+3. Собрать и запустить проект:
+```
+docker compose up --build
+```
+
+После этого:
+
+- автоматически применяются миграции
+- поднимается Django-сервер
+- запускается Celery worker
+
+### 🌐 Доступ к сервисам
+
+**Django-приложение**
+
+- Адрес: http://localhost:8000
+- Админ-панель: http://localhost:8000/admin
+
+### ✅ Проверка работоспособности сервисов
+1️⃣ Web (Django)
+
+- Сервер запущен, если в логах есть:
+```
+Watching for file changes with StatReloader
+```
+
+- Админка открывается в браузере
+
+2️⃣ Database (PostgreSQL)
+
+- В логах контейнера `db`:
+```
+database system is ready to accept connections
+```
+
+- Django успешно применяет миграции при запуске
+
+3️⃣ Redis
+
+- Redis считается рабочим, если `healthcheck` проходит успешно
+- Можно проверить командой:
+```
+docker compose ps
+```
+
+Статус сервиса должен быть `healthy`
+
+4️⃣ Celery
+
+- В логах контейнера `celery`:
+```
+Connected to redis://redis:6379/1
+celery@<container_id> ready.
+```
+
+- Проверка выполнения задачи (пример):
+```
+from users.tasks import deactivate_inactive_users
+deactivate_inactive_users.delay()
+```
+
+В логах Celery:
+```
+Task users.tasks.deactivate_inactive_users[...] succeeded
+```
+
+### 🛑 Остановка проекта
+
+Для остановки контейнеров:
+```
+docker compose down
+```
+
+Для полной очистки (включая volume базы данных):
+```
+docker compose down -v
+```
+
+### 📝 Примечания
+
+Проект не содержит пользовательских HTML-шаблонов - интерфейс доступен через админ-панель и API.
+Celery используется для выполнения фоновых задач (например, деактивации неактивных пользователей).
 
 ## 📚 Использованные технологии
 
