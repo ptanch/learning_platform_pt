@@ -5,7 +5,7 @@ description = ""
 authors = ["Tatiana Pitieva <tatyane.liss@gmail.com>"]
 packages = [
     { include = "config" },
-    { include = "Ims" },
+    { include = "lms" },
     { include = "users" }
 ]
 readme = "README.md"
