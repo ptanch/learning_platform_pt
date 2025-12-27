@@ -29,6 +29,12 @@ jobs:
       - name: Run tests
         env:
           CI: true
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+          DJANGO_DEBUG: ${{ secrets.DJANGO_DEBUG }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           poetry run python manage.py test
 
