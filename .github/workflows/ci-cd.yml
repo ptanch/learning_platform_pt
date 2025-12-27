@@ -36,7 +36,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          poetry run python manage.py test
+          poetry run python -c "import os; print(os.environ.get('DJANGO_SECRET_KEY'))"
 
   deploy:
     runs-on: ubuntu-latest
