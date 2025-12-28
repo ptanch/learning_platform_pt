@@ -53,7 +53,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/learning_platform_pt
-            git fetch origin
-            git reset --hard origin/feature/github_actions
-            poetry install
+            git reset --hard
+            git pull origin feature/github_actions
+            /home/admin_ptanch/.local/bin/poetry install
             sudo systemctl restart gunicorn
