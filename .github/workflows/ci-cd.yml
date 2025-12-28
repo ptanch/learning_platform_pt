@@ -38,6 +38,15 @@ jobs:
         run: |
           poetry run python -c "import os; print(os.environ.get('DJANGO_SECRET_KEY'))"
 
+      - name: Check secrets availability
+        run: |
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then
+            echo "SSH_HOST is EMPTY"
+            exit 1
+          else
+            echo "SSH_HOST is present"
+          fi
+
   deploy:
     runs-on: ubuntu-latest
     needs: test
